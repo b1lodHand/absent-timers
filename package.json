@@ -1,0 +1,17 @@
+{
+  "name": "com.absence.timersystem",
+  "version": "1.0.1",
+  "displayName": "absent-timers",
+  "description": "a simple timer system.",
+  "unity": "2022.3",
+  "unityRelease": "13f1",
+  "documentationUrl": "",
+  "changelogUrl": "",
+  "licensesUrl": "",
+  "keywords": [],
+  "author": {
+    "name": "absencee_",
+    "email": "",
+    "url": "https://github.com/b1lodHand/"
+  }
+}
