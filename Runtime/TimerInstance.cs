@@ -3,6 +3,7 @@ using UnityEngine.Events;
 
 namespace com.absence.timersystem
 {
+    [AddComponentMenu("absencee_/absent-timers/Timer Instance")]
     public class TimerInstance : MonoBehaviour
     {
         [SerializeField] private float m_duration = 0f;

@@ -3,7 +3,11 @@ using UnityEngine;
 
 namespace com.absence.timersystem
 {
-    public class TimerBehaviour : MonoBehaviour
+    /// <summary>
+    /// A gameobject gets created with this component attached when you create and
+    /// initialize a new timer. IT IS NOT INTENDED to be used as a component.
+    /// </summary>
+    internal class TimerBehaviour : MonoBehaviour
     {
         [SerializeField] private Timer m_timer;
         private float m_timeSpent = 0f;
