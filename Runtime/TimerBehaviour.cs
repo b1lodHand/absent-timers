@@ -1,14 +1,24 @@
 
 using UnityEngine;
+using UnityEngine.Pool;
 
 namespace com.absence.timersystem
 {
     /// <summary>
     /// A gameobject gets created with this component attached when you create and
-    /// initialize a new timer. IT IS NOT INTENDED to be used as a component.
+    /// initialize a new timer. <b>IT IS NOT INTENDED</b> to be used as a component.
     /// </summary>
     internal class TimerBehaviour : MonoBehaviour
     {
+        //static IObjectPool<TimerBehaviour> m_pool;
+        //public static IObjectPool<TimerBehaviour> Pool => m_pool;
+
+        //[RuntimeInitializeOnLoadMethod]
+        //static void SetupPool()
+        //{
+        //    m_pool = new ObjectPool<TimerBehaviour>(OnTimerCreate, OnTimerGet, OnTimerRelease, OnTimerDestroy);
+        //}
+
         [SerializeField] private Timer m_timer;
         private float m_timeSpent = 0f;
         private bool m_oneTimeOnly = false;
@@ -28,6 +38,7 @@ namespace com.absence.timersystem
                 Destroy(gameObject);
                 return;
             }
+
             if (!m_timer.IsActive) return;
             if (m_timer.IsPaused) return;
 

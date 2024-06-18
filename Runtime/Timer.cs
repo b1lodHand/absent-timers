@@ -21,12 +21,12 @@ namespace com.absence.timersystem
         /// <summary>
         /// Returns true if the timer is initialized for at least once. (Not dependent on state of the timer.)
         /// </summary>
-        public bool HasStarted { get; private set; }
+        public bool HasStarted { get; private set; } = false;
 
         /// <summary>
         /// Returns true if the timer has stopped.
         /// </summary>
-        public bool HasEnded { get; private set; }
+        public bool HasEnded { get; private set; } = false;
 
         /// <summary>
         /// Returns true if the timer is initialized but is not counting right now.
