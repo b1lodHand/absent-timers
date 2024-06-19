@@ -16,17 +16,17 @@ namespace com.absence.timersystem
         /// <summary>
         /// The total duration the timer initialized with. Is not dynamic.
         /// </summary>
-        public float Duration { get; private set; }
+        public float Duration { get; internal set; }
 
         /// <summary>
         /// Returns true if the timer is initialized for at least once. (Not dependent on state of the timer.)
         /// </summary>
-        public bool HasStarted { get; private set; } = false;
+        public bool HasStarted { get; internal set; } = false;
 
         /// <summary>
         /// Returns true if the timer has stopped.
         /// </summary>
-        public bool HasEnded { get; private set; } = false;
+        public bool HasEnded { get; internal set; } = false;
 
         /// <summary>
         /// Returns true if the timer is initialized but is not counting right now.
