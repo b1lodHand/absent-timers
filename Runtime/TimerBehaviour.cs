@@ -10,31 +10,28 @@ namespace com.absence.timersystem
     {
         [SerializeField] private Timer m_timer;
         private float m_timeSpent = 0f;
-        private bool m_oneTimeOnly = false;
 
-        internal void Initialize(Timer timer, bool oneTimeOnly)
+        internal void Initialize(Timer timer)
         {
             if (m_timer != null && m_timer.IsActive) m_timer.Fail();
 
             m_timer = timer;
-            m_oneTimeOnly = oneTimeOnly;
         }
 
         private void Update()
         {
             if (m_timer == null)
             {
-                Destroy(gameObject);
+                this.Destroy();
                 return;
             }
 
             if (!m_timer.IsActive) return;
             if (m_timer.IsPaused) return;
 
-            if (m_timeSpent >= m_timer.Duration)
+            if (m_timeSpent >= m_timer.m_duration)
             {
                 m_timer.Succeed();
-                if (m_oneTimeOnly) Destroy(gameObject);
                 return;
             }
 
@@ -45,6 +42,14 @@ namespace com.absence.timersystem
         internal void Restart()
         {
             m_timeSpent = 0f;
+        }
+
+        internal void SetActive(bool activeValue) => gameObject.SetActive(activeValue);
+
+        internal void Destroy()
+        {
+            m_timer = null;
+            Destroy(gameObject);
         }
     }
 

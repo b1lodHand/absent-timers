@@ -11,51 +11,62 @@ namespace com.absence.timersystem
     /// </summary>
     public class Timer
     {
-        internal Timer() { }
+        internal Timer()
+        {
+            TimerBehaviour timerBehaviour = new GameObject("Timer").AddComponent<TimerBehaviour>();
+            timerBehaviour.transform.SetParent(TimerManager.Instance.transform);
+            timerBehaviour.Initialize(this);
+
+            this.m_behaviour = timerBehaviour;
+        }
 
         /// <summary>
         /// The total duration the timer initialized with. Is not dynamic.
         /// </summary>
-        public float Duration { get; internal set; }
+        public float Duration => m_duration;
 
         /// <summary>
         /// Returns true if the timer is initialized for at least once. (Not dependent on state of the timer.)
         /// </summary>
-        public bool HasStarted { get; internal set; } = false;
-
-        /// <summary>
-        /// Returns true if the timer has stopped.
-        /// </summary>
-        public bool HasEnded { get; internal set; } = false;
+        public bool HasStarted => m_hasStarted;
 
         /// <summary>
         /// Returns true if the timer is initialized but is not counting right now.
         /// </summary>
-        public bool IsPaused => HasStarted && m_isPaused;
+        public bool IsPaused => m_isPaused;
+
+        /// <summary>
+        /// Returns true if the timer has stopped.
+        /// </summary>
+        public bool HasEnded => m_hasEnded;
 
         /// <summary>
         /// Returns true if the timer has stopped without completing it's duty due to any reason.
         /// </summary>
-        public bool HasFailed => HasEnded && m_hasFailed;
+        public bool HasFailed => m_hasEnded && m_hasFailed;
 
         /// <summary>
         /// Returns true if the timer successfully ended counting.
         /// </summary>
-        public bool HasSucceeded => HasEnded && m_hasSucceeded;
+        public bool HasSucceeded => m_hasEnded && m_hasSucceeded;
 
         /// <summary>
         /// Returns true if the timer is counting at the moment.
         /// </summary>
-        public bool IsActive => HasStarted && !HasEnded;
+        public bool IsActive => m_hasStarted && !m_hasEnded;
 
-        public event Action OnTick;
-        public event Action OnSuccess;
-        public event Action OnFailure;
+        public event Action OnTick = null;
+        public event Action OnSuccess = null;
+        public event Action OnFailure = null;
 
-        private TimerBehaviour m_behaviour;
-        private bool m_hasSucceeded = false;
-        private bool m_hasFailed = false;
-        private bool m_isPaused = false;
+        internal TimerBehaviour m_behaviour = null;
+        internal bool m_hasSucceeded = false;
+        internal bool m_hasFailed = false;
+        internal bool m_isPaused = false;
+        internal bool m_hasEnded = false;
+        internal bool m_hasStarted = false;
+
+        internal float m_duration = 0;
 
         /// <summary>
         /// Use to create a new timer.
@@ -69,20 +80,13 @@ namespace com.absence.timersystem
         /// get destroyed right after it ends.
         /// </param>
         /// <returns></returns>
-        public static Timer Create(float duration, Action onTick = null, Action onSuccess = null, Action onFail = null, bool oneTimeOnly = true)
+        public static Timer Create(float duration, Action onTick = null, Action onSuccess = null, Action onFail = null)
         {
-            Timer t = new Timer()
-            {
-                Duration = duration,
-                OnTick = onTick,
-                OnSuccess = onSuccess,
-                OnFailure = onFail
-            };
-
-            TimerBehaviour timerBehaviour = new GameObject("Timer").AddComponent<TimerBehaviour>();
-            timerBehaviour.Initialize(t, oneTimeOnly);
-
-            t.m_behaviour = timerBehaviour;
+            Timer t = TimerManager.Instance.Get();
+            t.m_duration = duration;
+            t.OnTick = onTick;
+            t.OnSuccess = onSuccess;
+            t.OnFailure = onFail;
 
             return t;
         }
@@ -92,12 +96,12 @@ namespace com.absence.timersystem
         /// </summary>
         public void Restart()
         {
-            HasEnded = false;
+            m_hasEnded = false;
             m_hasSucceeded = false;
             m_hasFailed = false;
             m_isPaused = false;
 
-            HasStarted = true;
+            m_hasStarted = true;
             m_behaviour.Restart();
         }
 
@@ -122,12 +126,14 @@ namespace com.absence.timersystem
         /// </summary>
         public void Fail()
         {
-            if (HasEnded) return;
+            if (m_hasEnded) return;
 
-            HasEnded = true;
+            m_hasEnded = true;
             m_hasFailed = true;
 
             OnFailure?.Invoke();
+
+            TimerManager.Instance.Release(this);
         }
 
         internal void Tick()
@@ -137,12 +143,24 @@ namespace com.absence.timersystem
 
         internal void Succeed()
         {
-            if (HasEnded) return;
+            if (m_hasEnded) return;
 
-            HasEnded = true;
+            m_hasEnded = true;
             m_hasSucceeded = true;
 
             OnSuccess?.Invoke();
+
+            TimerManager.Instance.Release(this);
+        }
+
+        internal void Dispose()
+        {
+            OnTick = null;
+            OnFailure = null;
+            OnSuccess = null;
+
+            m_behaviour.Destroy();
+            m_behaviour = null;
         }
     }
 }
