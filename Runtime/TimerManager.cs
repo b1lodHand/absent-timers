@@ -5,8 +5,8 @@ namespace com.absence.timersystem
 {
     internal class TimerManager : MonoBehaviour
     {
-        internal const int DefaultPoolCapacity = 16;
-        internal static readonly bool InstantiateManagerAutomatically = true;
+        internal const int DEFAULT_POOL_CAPACITY = 16;
+        internal static readonly bool INSTANTIATE_AUTOMATICALLY = true;
 
         #region Singleton
         private static TimerManager m_instance;
@@ -30,7 +30,7 @@ namespace com.absence.timersystem
 
         private void SetupPool()
         {
-            m_pool = new ObjectPool<Timer>(OnTimerCreate, OnTimerGet, OnTimerRelease, OnTimerDestroy, true, DefaultPoolCapacity, 10000);
+            m_pool = new ObjectPool<Timer>(OnTimerCreate, OnTimerGet, OnTimerRelease, OnTimerDestroy, true, DEFAULT_POOL_CAPACITY, 10000);
         }
 
         private Timer OnTimerCreate()
@@ -63,7 +63,7 @@ namespace com.absence.timersystem
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void InstantiateTimerManager()
         {
-            if (!InstantiateManagerAutomatically) return;
+            if (!INSTANTIATE_AUTOMATICALLY) return;
 
             new GameObject("Timer Manager [absent-timers]").AddComponent<TimerManager>();
         }
