@@ -140,7 +140,6 @@ namespace com.absence.timersystem
         {
             OnTick?.Invoke();
         }
-
         internal void Succeed()
         {
             if (m_hasEnded) return;
@@ -152,7 +151,6 @@ namespace com.absence.timersystem
 
             TimerManager.Instance.Release(this);
         }
-
         internal void Dispose()
         {
             OnTick = null;

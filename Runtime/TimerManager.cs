@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -6,8 +5,8 @@ namespace com.absence.timersystem
 {
     internal class TimerManager : MonoBehaviour
     {
-        public const int DefaultPoolCapacity = 16;
-        public static readonly bool InstantiateManagerAutomatically = true;
+        internal const int DefaultPoolCapacity = 16;
+        internal static readonly bool InstantiateManagerAutomatically = true;
 
         #region Singleton
         private static TimerManager m_instance;
@@ -17,7 +16,7 @@ namespace com.absence.timersystem
         {
             if (m_instance != null && m_instance != this)
             {
-                Destroy(this);
+                Destroy(gameObject);
                 return;
             }
 
@@ -75,11 +74,11 @@ namespace com.absence.timersystem
             SetupPool();
         }
 
-        public Timer Get()
+        internal Timer Get()
         {
             return m_pool.Get();
         }
-        public void Release(Timer timerToRelease)
+        internal void Release(Timer timerToRelease)
         {
             m_pool.Release(timerToRelease);
         }
