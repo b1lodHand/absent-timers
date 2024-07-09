@@ -29,7 +29,7 @@ namespace com.absence.timersystem
             if (!m_timer.IsActive) return;
             if (m_timer.IsPaused) return;
 
-            if (m_timeSpent >= m_timer.m_duration)
+            if (m_timeSpent >= m_timer.Duration)
             {
                 m_timer.Succeed();
                 return;

@@ -50,9 +50,11 @@ namespace com.absence.timersystem
         public event Action OnTick = null;
         public event Action<TimerState> OnComplete = null;
 
-        internal TimerBehaviour m_behaviour = null;
-        internal TimerState m_state = TimerState.NotStarted;
-        internal float m_duration = 0;
+        private TimerState m_state = TimerState.NotStarted;
+        private float m_duration = 0;
+
+        private TimerBehaviour m_behaviour = null;
+        internal TimerBehaviour Behaviour => m_behaviour;
 
         internal Timer()
         {
@@ -157,6 +159,13 @@ namespace com.absence.timersystem
 
             m_behaviour.Destroy();
             m_behaviour = null;
+        }
+        internal void ResetProperties()
+        {
+            m_state = TimerState.NotStarted;
+
+            OnTick = null;
+            OnComplete = null;
         }
     }
 }

@@ -44,14 +44,13 @@ namespace com.absence.timersystem
         }
         private void OnTimerGet(Timer t)
         {
-            t.m_behaviour.SetActive(true);
-            t.m_behaviour.Restart();
+            t.Behaviour.SetActive(true);
+            t.Behaviour.Restart();
         }
         private void OnTimerRelease(Timer t)
         {
-            t.m_state = Timer.TimerState.NotStarted;
-
-            t.m_behaviour.SetActive(false);
+            t.ResetProperties();
+            t.Behaviour.SetActive(false);
         }
         #endregion
 
