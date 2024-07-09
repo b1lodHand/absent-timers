@@ -49,12 +49,7 @@ namespace com.absence.timersystem
         }
         private void OnTimerRelease(Timer t)
         {
-            t.m_hasSucceeded = false;
-            t.m_hasFailed = false;
-            t.m_isPaused = false;
-
-            t.m_hasStarted = false;
-            t.m_hasEnded = false;
+            t.m_state = Timer.TimerState.NotStarted;
 
             t.m_behaviour.SetActive(false);
         }

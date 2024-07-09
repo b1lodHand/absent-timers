@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -13,12 +14,14 @@ namespace com.absence.timersystem
 
         private void Start()
         {
-            var t = Timer.Create(m_duration,
-                () => { },
-                () => m_onSuccess?.Invoke(),
-                () => m_onFail?.Invoke());
+            var t = Timer.Create(m_duration, null, OnTimerComplete);
 
             if (m_startOnAwake) t.Restart();
+        }
+
+        private void OnTimerComplete(Timer.TimerState state)
+        {
+            throw new NotImplementedException();
         }
     }
 }
