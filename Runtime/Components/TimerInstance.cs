@@ -4,6 +4,9 @@ using UnityEngine.Events;
 
 namespace com.absence.timersystem
 {
+    /// <summary>
+    /// A component that represents a timer with UnityEvent based callbacks.
+    /// </summary>
     [AddComponentMenu("absencee_/absent-timers/Timer Instance")]
     public class TimerInstance : MonoBehaviour
     {
@@ -21,7 +24,16 @@ namespace com.absence.timersystem
 
         private void OnTimerComplete(Timer.TimerState state)
         {
-            throw new NotImplementedException();
+            switch (state)
+            {
+                case Timer.TimerState.Succeeded:
+                    m_onSuccess?.Invoke();
+                    break;
+
+                default:
+                    m_onFail?.Invoke();
+                    break;
+            }
         }
     }
 }
