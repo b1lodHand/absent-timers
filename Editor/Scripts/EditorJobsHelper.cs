@@ -16,5 +16,16 @@ namespace com.absence.timersystem.editor
 
             Selection.activeGameObject = obj; 
         }
+
+        [MenuItem("GameObject/absencee_/absent-timers/Timer Instance", priority = 0)]
+        static void CreateTimerInstance_MenuItem()
+        {
+            GameObject obj = new GameObject("Timer Instance");
+            obj.AddComponent<TimerInstance>();
+
+            Undo.RegisterCreatedObjectUndo(obj, "Timer Instance Created via MenuItem");
+
+            Selection.activeGameObject = obj;
+        }
     }
 }
