@@ -1,0 +1,16 @@
+{
+    "name": "com.absence.timersystem.editor",
+    "rootNamespace": "com.absence.timersystem.editor",
+    "references": [
+        "GUID:6606de44d8ece2b42bb9be228c97d35e"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

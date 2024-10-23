@@ -1,29 +1,40 @@
 using UnityEngine;
 using UnityEngine.Pool;
 
-namespace com.absence.timersystem
+namespace com.absence.timersystem.internals
 {
-    internal class TimerManager : MonoBehaviour
+    /// <summary>
+    /// The singleton class responsible for handling anything based on absent-timers.
+    /// </summary>
+    [DisallowMultipleComponent]
+    [AddComponentMenu("absencee_/absent-timers/Timer Manager")]
+    public class TimerManager : MonoBehaviour
     {
         internal const int DEFAULT_POOL_CAPACITY = 16;
-        internal static readonly bool INSTANTIATE_AUTOMATICALLY = true;
+        internal const bool INSTANTIATE_AUTOMATICALLY = true;
+
+        [SerializeField] internal bool m_dontDestroyOnLoad = true;
 
         #region Singleton
         private static TimerManager m_instance;
         public static TimerManager Instance => m_instance;
-
-        private void SetupSingleton()
-        {
-            if (m_instance != null && m_instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            m_instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
         #endregion
+
+        private void Awake()
+        {
+            SetupSingleton();
+            SetupPool();
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void InstantiateTimerManager()
+        {
+#pragma warning disable CS0162 // Unreachable code detected
+            if (!INSTANTIATE_AUTOMATICALLY) return;
+
+            new GameObject("Timer Manager [absent-timers]").AddComponent<TimerManager>();
+#pragma warning restore CS0162 // Unreachable code detected
+        }
 
         #region Pooling
         private IObjectPool<Timer> m_pool;
@@ -54,18 +65,16 @@ namespace com.absence.timersystem
         }
         #endregion
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void InstantiateTimerManager()
+        private void SetupSingleton()
         {
-            if (!INSTANTIATE_AUTOMATICALLY) return;
+            if (m_instance != null && m_instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
 
-            new GameObject("Timer Manager [absent-timers]").AddComponent<TimerManager>();
-        }
-
-        private void Awake()
-        {
-            SetupSingleton();
-            SetupPool();
+            m_instance = this;
+            if (m_dontDestroyOnLoad) DontDestroyOnLoad(gameObject);
         }
 
         internal Timer Get()
