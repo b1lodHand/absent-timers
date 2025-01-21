@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -11,9 +12,10 @@ namespace com.absence.timersystem.internals
     public class TimerManager : MonoBehaviour
     {
         internal const int DEFAULT_POOL_CAPACITY = 16;
-        internal const bool INSTANTIATE_AUTOMATICALLY = true;
+        internal const bool INSTANTIATE_AUTOMATICALLY = false;
 
         [SerializeField] internal bool m_dontDestroyOnLoad = true;
+        [SerializeField] internal List<Timer> m_activeTimers;
 
         #region Singleton
         private static TimerManager m_instance;
@@ -24,6 +26,16 @@ namespace com.absence.timersystem.internals
         {
             SetupSingleton();
             SetupPool();
+        }
+
+        private void Update()
+        {
+            for (int i = 0; i < m_activeTimers.Count; i++)
+            {
+                Timer timer = m_activeTimers[i];
+
+                if (timer.IsActive && !timer.IsPaused) timer.Tick();
+            }
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -41,6 +53,7 @@ namespace com.absence.timersystem.internals
 
         private void SetupPool()
         {
+            m_activeTimers = new();
             m_pool = new ObjectPool<Timer>(OnTimerCreate, OnTimerGet, OnTimerRelease, OnTimerDestroy, true, DEFAULT_POOL_CAPACITY, 10000);
         }
 
@@ -55,13 +68,11 @@ namespace com.absence.timersystem.internals
         }
         private void OnTimerGet(Timer t)
         {
-            t.Behaviour.SetActive(true);
-            t.Behaviour.Restart();
+            
         }
         private void OnTimerRelease(Timer t)
         {
             t.ResetProperties();
-            t.Behaviour.SetActive(false);
         }
         #endregion
 
@@ -79,10 +90,14 @@ namespace com.absence.timersystem.internals
 
         internal Timer Get()
         {
-            return m_pool.Get();
+            Timer target = m_pool.Get();
+            m_activeTimers.Add(target);
+            return target;
         }
+
         internal void Release(Timer timerToRelease)
         {
+            m_activeTimers.Remove(timerToRelease);
             m_pool.Release(timerToRelease);
         }
     }

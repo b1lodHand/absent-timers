@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -22,18 +21,12 @@ namespace com.absence.timersystem
             if (m_startOnAwake) t.Restart();
         }
 
-        private void OnTimerComplete(Timer.TimerState state)
+        private void OnTimerComplete(TimerCompletionContext context)
         {
-            switch (state)
-            {
-                case Timer.TimerState.Succeeded:
-                    m_onSuccess?.Invoke();
-                    break;
-
-                default:
-                    m_onFail?.Invoke();
-                    break;
-            }
+            if (context.Succeeded)
+                m_onSuccess?.Invoke();
+            else
+                m_onFail?.Invoke();
         }
     }
 }

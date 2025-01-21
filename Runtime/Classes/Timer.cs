@@ -10,62 +10,8 @@ namespace com.absence.timersystem
     /// Timer.Create();
     /// </code>
     /// </summary>
-    public class Timer
+    public class Timer : ITimer, ITimer2
     {
-        public enum TimerState
-        {
-            NotStarted = 0,
-            Running = 1,
-            Paused = 2,
-            Succeeded = 3,
-            Failed = 4,
-        }
-
-        public TimerState State => m_state;
-
-        /// <summary>
-        /// The total duration the timer initialized with. Is not dynamic.
-        /// </summary>
-        public float Duration => m_duration;
-
-        /// <summary>
-        /// Use to check if this timer is completed.
-        /// </summary>
-        public bool HasCompleted => m_state == TimerState.Failed || m_state == TimerState.Succeeded;
-
-        /// <summary>
-        /// Use to check if the <see cref="Start"/> function of this timer got called.
-        /// </summary>
-        public bool HasStarted => m_state != TimerState.NotStarted;
-
-        /// <summary>
-        /// Returns true if this timer is started but not completed yet.
-        /// </summary>
-        public bool IsActive => HasStarted && !HasCompleted;
-
-        /// <summary>
-        /// Returns true if this timer is paused.
-        /// </summary>
-        public bool IsPaused => m_state == TimerState.Paused;
-        
-        public event Action OnTick = null;
-        public event Action<TimerState> OnComplete = null;
-
-        private TimerState m_state = TimerState.NotStarted;
-        private float m_duration = 0;
-
-        private TimerBehaviour m_behaviour = null;
-        internal TimerBehaviour Behaviour => m_behaviour;
-
-        internal Timer()
-        {
-            TimerBehaviour timerBehaviour = new GameObject("Timer").AddComponent<TimerBehaviour>();
-            timerBehaviour.transform.SetParent(TimerManager.Instance.transform);
-            timerBehaviour.Initialize(this);
-
-            this.m_behaviour = timerBehaviour;
-        }
-
         /// <summary>
         /// Use to create a new timer.
         /// </summary>
@@ -78,54 +24,60 @@ namespace com.absence.timersystem
         /// get destroyed right after it ends.
         /// </param>
         /// <returns></returns>
-        public static Timer Create(float duration, Action onTick = null, Action<TimerState> onComplete = null)
+        public static Timer Create(float duration, Action onTick = null, Action<TimerCompletionContext> onComplete = null)
         {
             Timer t = TimerManager.Instance.Get();
             t.m_duration = duration;
+            t.m_timeLeft = duration;
             t.OnTick = onTick;
             t.OnComplete = onComplete;
 
             return t;
         }
 
+        internal Timer()
+        {
+        }
+
+        [SerializeField] private TimerState m_state = TimerState.NotStarted;
+        [SerializeField] private float m_duration = 0;
+        [SerializeField] private float m_timeLeft = 0;
+
+        public event Action OnTick = null;
+        public event Action<TimerCompletionContext> OnComplete = null;
+
+        public TimerState State => m_state;
+
+        public float Duration => m_duration;
         /// <summary>
-        /// Rewinds the timer and starts again.
+        /// Use to get the amount of time left until this timer reaches 0f.
         /// </summary>
+        public float CurrentTime => m_timeLeft;
+        public bool HasCompleted => m_state == TimerState.Failed || m_state == TimerState.Succeeded;
+        public bool HasStarted => m_state != TimerState.NotStarted;
+        public bool IsActive => HasStarted && !HasCompleted;
+        public bool IsPaused => m_state == TimerState.Paused;
+
+        #region Public API
+
         public void Restart()
         {
             m_state = TimerState.Running;
-            m_behaviour.Restart();
         }
-
-        /// <summary>
-        /// Starts the timer if it's not started yet.
-        /// </summary>
         public void Start()
         {
             if (m_state != TimerState.NotStarted) return;
 
             m_state = TimerState.Running;
         }
-
-        /// <summary>
-        /// Pauses the timer at the current state.
-        /// </summary>
         public void Pause()
         {
             if (m_state == TimerState.Running) m_state = TimerState.Paused;
         }
-
-        /// <summary>
-        /// Resumes the timer.
-        /// </summary>
         public void Resume()
         {
             if (m_state == TimerState.Paused) m_state = TimerState.Running;
         }
-
-        /// <summary>
-        /// Lets you to quick end a timer. Timer counts as failed.
-        /// </summary>
         public void Fail()
         {
             if (m_state == TimerState.Failed) return;
@@ -133,40 +85,72 @@ namespace com.absence.timersystem
 
             m_state = TimerState.Failed;
 
-            OnComplete?.Invoke(m_state);
+            OnComplete?.Invoke(GenerateCompletionContext());
 
             TimerManager.Instance.Release(this);
         }
-
-        internal void Tick()
+        public void Expand(float amount)
         {
-            OnTick?.Invoke();
+            if (!IsActive) return;
+
+            m_duration += amount;
+            m_timeLeft += amount;
         }
-        internal void Succeed()
+        public void Shrink(float amount)
+        {
+            if (!IsActive) return;
+
+            m_duration -= amount;
+            m_timeLeft -= amount;
+        }
+
+        #endregion
+
+        #region Internal API
+
+        public void Succeed()
         {
             if (m_state == TimerState.Failed) return;
             if (m_state == TimerState.Succeeded) return;
 
             m_state = TimerState.Succeeded;
 
-            OnComplete?.Invoke(m_state);
+            OnComplete?.Invoke(GenerateCompletionContext());
 
             TimerManager.Instance.Release(this);
         }
-        internal void Dispose()
+        public void Tick()
+        {
+            if (!IsActive) return;
+            if (IsPaused) return;
+
+            m_timeLeft -= Time.deltaTime;
+            OnTick?.Invoke();
+
+            if (m_timeLeft <= 0f)
+                Succeed();
+        }
+        public void Dispose()
         {
             OnTick = null;
             OnComplete = null;
-
-            m_behaviour.Destroy();
-            m_behaviour = null;
         }
-        internal void ResetProperties()
+        public void ResetProperties()
         {
             m_state = TimerState.NotStarted;
+            m_timeLeft = 0f;
 
             OnTick = null;
             OnComplete = null;
         }
+        public TimerCompletionContext GenerateCompletionContext()
+        {
+            return new TimerCompletionContext()
+            {
+                Succeeded = State == TimerState.Succeeded,
+            };
+        }
+
+        #endregion
     }
 }
