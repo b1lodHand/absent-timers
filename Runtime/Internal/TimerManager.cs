@@ -14,6 +14,7 @@ namespace com.absence.timersystem.internals
         internal const int DEFAULT_POOL_CAPACITY = 16;
         internal const bool INSTANTIATE_AUTOMATICALLY = false;
 
+        [SerializeField] internal int m_initialPoolCapacity = DEFAULT_POOL_CAPACITY;
         [SerializeField] internal bool m_dontDestroyOnLoad = true;
         [SerializeField] internal bool m_useSingleton = true;
         [SerializeField] internal List<Timer> m_activeTimers;
@@ -60,7 +61,9 @@ namespace com.absence.timersystem.internals
         private void SetupPool()
         {
             m_activeTimers = new();
-            m_pool = new ObjectPool<Timer>(OnTimerCreate, OnTimerGet, OnTimerRelease, OnTimerDestroy, true, DEFAULT_POOL_CAPACITY, 10000);
+            m_pool = new ObjectPool<Timer>(OnTimerCreate, OnTimerGet,
+                OnTimerRelease, OnTimerDestroy, 
+                true, m_initialPoolCapacity, 10000);
         }
 
         private Timer OnTimerCreate()

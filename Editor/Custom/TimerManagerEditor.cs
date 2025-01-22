@@ -19,6 +19,7 @@ namespace com.absence.timersystem.editor
             headerStyle.alignment = TextAnchor.MiddleCenter;
             headerStyle.fontStyle = FontStyle.Bold;
 
+            int poolCapacity = manager.m_initialPoolCapacity;
             bool dontDestroyOnLoad = manager.m_dontDestroyOnLoad;
             bool useSingleton = manager.m_useSingleton;
 
@@ -28,10 +29,18 @@ namespace com.absence.timersystem.editor
 
             if (Application.isPlaying) GUI.enabled = false;
 
+            DrawPoolCapacityField();
             DrawSingletonToggle();
             DrawDontDestroyOnLoadToggle();
 
+            EditorGUILayout.Space();
+
             if (Application.isPlaying) DrawActiveTimerList();
+            else
+            {
+                EditorGUILayout.HelpBox("You need to start the game to see any runtime data.",
+                    MessageType.Info);
+            }
 
             if (Application.isPlaying) GUI.enabled = true;
 
@@ -41,12 +50,24 @@ namespace com.absence.timersystem.editor
 
                 manager.m_dontDestroyOnLoad = dontDestroyOnLoad;
                 manager.m_useSingleton = useSingleton;
+                manager.m_initialPoolCapacity = poolCapacity;
 
                 serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(manager);
             }
 
             return;
+
+            void DrawPoolCapacityField()
+            {
+                GUIContent content = new GUIContent()
+                {
+                    text = "Initial Pool Capacity",
+                    tooltip = "This is the capacity that will be used when creating the timer pool.",
+                };
+
+                poolCapacity = EditorGUILayout.IntField(content, poolCapacity);
+            }
 
             void DrawSingletonToggle()
             {
