@@ -39,9 +39,13 @@ namespace com.absence.timersystem
         {
         }
 
-        [SerializeField] private TimerState m_state = TimerState.NotStarted;
-        [SerializeField] private float m_duration = 0;
-        [SerializeField] private float m_timeLeft = 0;
+        private TimerState m_state = TimerState.NotStarted;
+        private float m_duration = 0;
+        private float m_timeLeft = 0;
+
+#if UNITY_EDITOR
+        [SerializeField] private bool m_isExpanded = true;
+#endif
 
         public event Action OnTick = null;
         public event Action<TimerCompletionContext> OnComplete = null;

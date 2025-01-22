@@ -15,28 +15,13 @@ namespace com.absence.timersystem.internals
         internal const bool INSTANTIATE_AUTOMATICALLY = false;
 
         [SerializeField] internal bool m_dontDestroyOnLoad = true;
+
         [SerializeField] internal List<Timer> m_activeTimers;
 
         #region Singleton
         private static TimerManager m_instance;
         public static TimerManager Instance => m_instance;
         #endregion
-
-        private void Awake()
-        {
-            SetupSingleton();
-            SetupPool();
-        }
-
-        private void Update()
-        {
-            for (int i = 0; i < m_activeTimers.Count; i++)
-            {
-                Timer timer = m_activeTimers[i];
-
-                if (timer.IsActive && !timer.IsPaused) timer.Tick();
-            }
-        }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         static void InstantiateTimerManager()
@@ -46,6 +31,27 @@ namespace com.absence.timersystem.internals
 
             new GameObject("Timer Manager [absent-timers]").AddComponent<TimerManager>();
 #pragma warning restore CS0162 // Unreachable code detected
+        }
+
+        private void Awake()
+        {
+            SetupSingleton();
+            SetupPool();
+        }
+
+        private void Update()
+        {
+            TickTimers();
+        }
+
+        void TickTimers()
+        {
+            for (int i = 0; i < m_activeTimers.Count; i++)
+            {
+                Timer timer = m_activeTimers[i];
+
+                if (timer.IsActive && !timer.IsPaused) timer.Tick();
+            }
         }
 
         #region Pooling

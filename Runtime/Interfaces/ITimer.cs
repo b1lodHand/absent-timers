@@ -3,6 +3,11 @@ namespace com.absence.timersystem
     public interface ITimer
     {
         /// <summary>
+        /// Current state of the timer.
+        /// </summary>
+        public TimerState State { get; }
+
+        /// <summary>
         /// The total duration the timer initialized with. Is not dynamic.
         /// </summary>
         float Duration { get; }
