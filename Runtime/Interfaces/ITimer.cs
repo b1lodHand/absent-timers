@@ -35,11 +35,11 @@ namespace com.absence.timersystem
         /// <summary>
         /// Use to start the timer if it's not started yet.
         /// </summary>
-        void Start();
+        void Start(bool startPaused);
         /// <summary>
         /// Use to restart the timer.
         /// </summary>
-        void Restart();
+        void Restart(bool restartPaused);
         /// <summary>
         /// Use to pause the timer.
         /// </summary>

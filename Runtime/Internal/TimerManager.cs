@@ -15,7 +15,7 @@ namespace com.absence.timersystem.internals
         internal const bool INSTANTIATE_AUTOMATICALLY = false;
 
         [SerializeField] internal bool m_dontDestroyOnLoad = true;
-
+        [SerializeField] internal bool m_useSingleton = true;
         [SerializeField] internal List<Timer> m_activeTimers;
 
         #region Singleton
@@ -35,7 +35,7 @@ namespace com.absence.timersystem.internals
 
         private void Awake()
         {
-            SetupSingleton();
+            if (m_useSingleton) SetupSingleton();
             SetupPool();
         }
 

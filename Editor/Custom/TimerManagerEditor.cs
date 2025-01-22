@@ -19,19 +19,28 @@ namespace com.absence.timersystem.editor
             headerStyle.alignment = TextAnchor.MiddleCenter;
             headerStyle.fontStyle = FontStyle.Bold;
 
+            bool dontDestroyOnLoad = manager.m_dontDestroyOnLoad;
+            bool useSingleton = manager.m_useSingleton;
+
             GUILayout.Label("Timer Manager", headerStyle);
 
             EditorGUI.BeginChangeCheck();
 
-            bool dontDestroyOnLoad = DrawDontDestroyOnLoadToggle();
+            if (Application.isPlaying) GUI.enabled = false;
+
+            DrawSingletonToggle();
+            DrawDontDestroyOnLoadToggle();
 
             if (Application.isPlaying) DrawActiveTimerList();
+
+            if (Application.isPlaying) GUI.enabled = true;
 
             if (EditorGUI.EndChangeCheck())
             {
                 Undo.RecordObject(manager, "Timer Manager (Editor)");
 
                 manager.m_dontDestroyOnLoad = dontDestroyOnLoad;
+                manager.m_useSingleton = useSingleton;
 
                 serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(manager);
@@ -39,23 +48,34 @@ namespace com.absence.timersystem.editor
 
             return;
 
-            bool DrawDontDestroyOnLoadToggle()
+            void DrawSingletonToggle()
             {
-                if (Application.isPlaying) GUI.enabled = false;
+                GUIContent content = new GUIContent()
+                {
+                    text = "Use Singleton",
+                    tooltip = "If true, this TimerManager will try to be the singleton.",
+                };
 
-                bool dontDestroyOnLoad = manager.m_dontDestroyOnLoad;
+                useSingleton = EditorGUILayout.Toggle(content, useSingleton);
+            }
 
-                GUIContent ddolContent = new GUIContent()
+            void DrawDontDestroyOnLoadToggle()
+            {
+                if (!useSingleton)
+                {
+                    dontDestroyOnLoad = false;
+                    GUI.enabled = false;
+                }
+
+                GUIContent content = new GUIContent()
                 {
                     text = "Don't Destroy On Load",
                     tooltip = "If true, this object will try to move itself to DontDestroyOnLoad scene on awake.",
                 };
 
-                dontDestroyOnLoad = EditorGUILayout.Toggle(ddolContent, dontDestroyOnLoad);
+                dontDestroyOnLoad = EditorGUILayout.Toggle(content, dontDestroyOnLoad);
 
-                GUI.enabled = true;
-
-                return dontDestroyOnLoad;
+                if (!useSingleton) GUI.enabled = true; 
             }
 
             void DrawActiveTimerList()

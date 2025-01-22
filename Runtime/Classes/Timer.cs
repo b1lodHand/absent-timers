@@ -18,14 +18,15 @@ namespace com.absence.timersystem
         /// </summary>
         /// <param name="duration">The total duration timer will have.</param>
         /// <param name="onTick">Action will get invoked when timer ticks.</param>
-        /// <param name="onSuccess">Action will get invoked when timer ends successfully.</param>
-        /// <param name="onFail">Action will get invoked when timer fails.</param>
-        /// <param name="oneTimeOnly">
-        /// If true, you'll be able to use the timer more than once. If false, the timer will
-        /// get destroyed right after it ends.
-        /// </param>
-        /// <returns></returns>
-        public static Timer Create(float duration, Action onTick = null, Action<TimerCompletionContext> onComplete = null)
+        /// <param name="onComplete">Action will get invoked when timer ends.</param>
+        /// <param name="manager">TimerManager to use. Leave empty of you have no use of it. 
+        /// It will use the singleton that way.</param>
+        /// <returns>Returns the timer created. It won't start automatically. To start it, 
+        /// call <see cref="Timer.Start"/>.</returns>
+        public static Timer Create(float duration, 
+            Action onTick = null, 
+            Action<TimerCompletionContext> onComplete = null,
+            TimerManager manager = null)
         {
             Timer t = TimerManager.Instance.Get();
             t.m_duration = duration;
@@ -41,7 +42,9 @@ namespace com.absence.timersystem
         [SerializeField] private float m_timeLeft = 0;
 
 #if UNITY_EDITOR
+#pragma warning disable CS0414 // Assigned but its value never used
         [SerializeField] private bool m_isExpanded = true;
+#pragma warning restore CS0414 // Assigned but its value never used
 #endif
 
         public event Action OnTick = null;
@@ -65,48 +68,80 @@ namespace com.absence.timersystem
 
         #region Public API
 
-        public void Restart()
+        public void Restart(bool restartPaused = false)
         {
+            m_timeLeft = m_duration;
             m_state = TimerState.Running;
+
+            Pause();
         }
-        public void Start()
+        public void Start(bool startPaused = false)
         {
-            if (m_state != TimerState.NotStarted) return;
+            if (m_state != TimerState.NotStarted)
+            {
+                Debug.LogError("This timer is already started! If you're trying to restart, use 'Timer.Restart()' function.");
+                return;
+            }
 
             m_state = TimerState.Running;
+
+            Pause();
         }
         public void Pause()
         {
+            if (!IsActive)
+            {
+                Debug.LogError("You can't pause an inactive timer.");
+                return;
+            }
+
             if (m_state == TimerState.Running) m_state = TimerState.Paused;
         }
         public void Resume()
         {
+            if (!IsActive)
+            {
+                Debug.LogError("You can't resume an inactive timer.");
+                return;
+            }
+
             if (m_state == TimerState.Paused) m_state = TimerState.Running;
         }
         public void Fail()
         {
-            if (m_state == TimerState.Failed) return;
-            if (m_state == TimerState.Succeeded) return;
+            if (m_state == TimerState.Failed)
+            {
+                Debug.LogError("This timer has already failed.");
+                return;
+            }
+            if (m_state == TimerState.Succeeded)
+            {
+                Debug.LogError("This timer has already succeeded.");
+                return;
+            }
 
             m_state = TimerState.Failed;
-
             OnComplete?.Invoke(GenerateCompletionContext());
 
             TimerManager.Instance.Release(this);
         }
         public void Expand(float amount)
         {
-            if (!IsActive) return;
+            if (HasCompleted) return;
 
             m_duration += amount;
-            m_timeLeft += amount;
+
+            if (HasStarted) m_timeLeft += amount;
+            else m_timeLeft = m_duration;
         }
         public void Shrink(float amount)
         {
-            if (!IsActive) return;
+            if (HasCompleted) return;
 
             m_duration -= amount;
-            m_timeLeft -= amount;
+
+            if (HasStarted) m_timeLeft -= amount;
+            else m_timeLeft = m_duration;
         }
 
         #endregion
