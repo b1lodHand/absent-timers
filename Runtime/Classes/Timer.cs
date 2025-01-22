@@ -10,6 +10,7 @@ namespace com.absence.timersystem
     /// Timer.Create();
     /// </code>
     /// </summary>
+    [System.Serializable]
     public class Timer : ITimer, ITimer2
     {
         /// <summary>
@@ -35,13 +36,9 @@ namespace com.absence.timersystem
             return t;
         }
 
-        internal Timer()
-        {
-        }
-
-        private TimerState m_state = TimerState.NotStarted;
-        private float m_duration = 0;
-        private float m_timeLeft = 0;
+        [SerializeField] private TimerState m_state = TimerState.NotStarted;
+        [SerializeField] private float m_duration = 0;
+        [SerializeField] private float m_timeLeft = 0;
 
 #if UNITY_EDITOR
         [SerializeField] private bool m_isExpanded = true;
@@ -61,6 +58,10 @@ namespace com.absence.timersystem
         public bool HasStarted => m_state != TimerState.NotStarted;
         public bool IsActive => HasStarted && !HasCompleted;
         public bool IsPaused => m_state == TimerState.Paused;
+
+        internal Timer()
+        {
+        }
 
         #region Public API
 
