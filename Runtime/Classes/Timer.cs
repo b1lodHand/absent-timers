@@ -125,6 +125,17 @@ namespace com.absence.timersystem
 
             TimerManager.Instance.Release(this);
         }
+        public void Succeed()
+        {
+            if (m_state == TimerState.Failed) return;
+            if (m_state == TimerState.Succeeded) return;
+
+            m_state = TimerState.Succeeded;
+
+            OnComplete?.Invoke(GenerateCompletionContext());
+
+            TimerManager.Instance.Release(this);
+        }
         public void Expand(float amount)
         {
             if (HasCompleted) return;
@@ -148,18 +159,7 @@ namespace com.absence.timersystem
 
         #region Internal API
 
-        public void Succeed()
-        {
-            if (m_state == TimerState.Failed) return;
-            if (m_state == TimerState.Succeeded) return;
-
-            m_state = TimerState.Succeeded;
-
-            OnComplete?.Invoke(GenerateCompletionContext());
-
-            TimerManager.Instance.Release(this);
-        }
-        public void Tick()
+        internal void Tick()
         {
             if (!IsActive) return;
             if (IsPaused) return;
@@ -170,12 +170,12 @@ namespace com.absence.timersystem
             if (m_timeLeft <= 0f)
                 Succeed();
         }
-        public void Dispose()
+        internal void Dispose()
         {
             OnTick = null;
             OnComplete = null;
         }
-        public void ResetProperties()
+        internal void ResetProperties()
         {
             m_state = TimerState.NotStarted;
             m_timeLeft = 0f;
@@ -183,14 +183,15 @@ namespace com.absence.timersystem
             OnTick = null;
             OnComplete = null;
         }
-        public TimerCompletionContext GenerateCompletionContext()
+
+        #endregion
+
+        TimerCompletionContext GenerateCompletionContext()
         {
             return new TimerCompletionContext()
             {
                 Succeeded = State == TimerState.Succeeded,
             };
         }
-
-        #endregion
     }
 }

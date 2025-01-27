@@ -53,6 +53,10 @@ namespace com.absence.timersystem
         /// </summary>
         void Fail();
         /// <summary>
+        /// Use to force-end a timer. Timer counts as succeeded.
+        /// </summary>
+        void Succeed();
+        /// <summary>
         /// Use to expand the timer by some amount.
         /// </summary>
         /// <param name="amount">Amount of expansion (s).</param>
