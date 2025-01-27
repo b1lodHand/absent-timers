@@ -73,7 +73,7 @@ namespace com.absence.timersystem
             m_timeLeft = m_duration;
             m_state = TimerState.Running;
 
-            Pause();
+            if (restartPaused) Pause();
         }
         public void Start(bool startPaused = false)
         {
@@ -85,7 +85,7 @@ namespace com.absence.timersystem
 
             m_state = TimerState.Running;
 
-            Pause();
+            if (startPaused) Pause();
         }
         public void Pause()
         {
