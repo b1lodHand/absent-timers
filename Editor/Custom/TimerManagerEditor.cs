@@ -82,12 +82,6 @@ namespace com.absence.timersystem.editor
 
             void DrawDontDestroyOnLoadToggle()
             {
-                if (!useSingleton)
-                {
-                    dontDestroyOnLoad = false;
-                    GUI.enabled = false;
-                }
-
                 GUIContent content = new GUIContent()
                 {
                     text = "Don't Destroy On Load",
@@ -95,8 +89,6 @@ namespace com.absence.timersystem.editor
                 };
 
                 dontDestroyOnLoad = EditorGUILayout.Toggle(content, dontDestroyOnLoad);
-
-                if (!useSingleton) GUI.enabled = true; 
             }
 
             void DrawActiveTimerList()
