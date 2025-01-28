@@ -30,7 +30,7 @@ namespace com.absence.timersystem
         {
             Timer t = TimerManager.Instance.Get();
             t.m_duration = duration;
-            t.m_timeLeft = duration;
+            t.m_time = duration;
             t.OnTick = onTick;
             t.OnComplete = onComplete;
 
@@ -38,14 +38,10 @@ namespace com.absence.timersystem
         }
 
         [SerializeField] private TimerState m_state = TimerState.NotStarted;
-        [SerializeField] private float m_duration = 0;
-        [SerializeField] private float m_timeLeft = 0;
-
-#if UNITY_EDITOR
-#pragma warning disable CS0414 // Assigned but its value never used
-        [SerializeField] private bool m_isExpanded = true;
-#pragma warning restore CS0414 // Assigned but its value never used
-#endif
+        [SerializeField] private float m_duration = 0f;
+        [SerializeField] private float m_time = 0f;
+        [SerializeField] private float m_speedMultiplier = 1f;
+        [SerializeField] private bool m_reversed = false;
 
         public event Action OnTick = null;
         public event Action<TimerCompletionContext> OnComplete = null;
@@ -54,9 +50,10 @@ namespace com.absence.timersystem
 
         public float Duration => m_duration;
         /// <summary>
-        /// Use to get the amount of time left until this timer reaches 0f.
+        /// Use to get the amount of time left until this timer reaches to its destination.
         /// </summary>
-        public float CurrentTime => m_timeLeft;
+        public float CurrentTime => m_time;
+        public float Speed => m_speedMultiplier;
         public bool HasCompleted => m_state == TimerState.Failed || m_state == TimerState.Succeeded;
         public bool HasStarted => m_state != TimerState.NotStarted;
         public bool IsActive => HasStarted && !HasCompleted;
@@ -70,7 +67,7 @@ namespace com.absence.timersystem
 
         public void Restart(bool restartPaused = false)
         {
-            m_timeLeft = m_duration;
+            m_time = m_duration;
             m_state = TimerState.Running;
 
             if (restartPaused) Pause();
@@ -86,6 +83,8 @@ namespace com.absence.timersystem
             m_state = TimerState.Running;
 
             if (startPaused) Pause();
+
+            return;
         }
         public void Pause()
         {
@@ -142,8 +141,11 @@ namespace com.absence.timersystem
 
             m_duration += amount;
 
-            if (HasStarted) m_timeLeft += amount;
-            else m_timeLeft = m_duration;
+            if (m_reversed)
+                return;
+
+            if (HasStarted) m_time += amount;
+            else m_time = m_duration;
         }
         public void Shrink(float amount)
         {
@@ -151,8 +153,36 @@ namespace com.absence.timersystem
 
             m_duration -= amount;
 
-            if (HasStarted) m_timeLeft -= amount;
-            else m_timeLeft = m_duration;
+            if (m_reversed)
+                return;
+
+            if (HasStarted) m_time -= amount;
+            else m_time = m_duration;
+        }
+        public void Reverse()
+        {
+            if (HasCompleted) return;
+
+            m_reversed = !m_reversed;
+
+            return;
+        }
+        public void Flip()
+        {
+            if (HasCompleted) return;
+
+            m_time = m_duration - m_time;
+            Reverse();
+        }
+        public void SetSpeed(float newSpeed)
+        {
+            if (HasCompleted) return;
+            if (newSpeed <= 0f)
+                throw new Exception("Speed of a timer cannot be zero or lower! Use Reverse() instead.");
+
+            m_speedMultiplier = newSpeed;
+
+            return;
         }
 
         #endregion
@@ -164,10 +194,14 @@ namespace com.absence.timersystem
             if (!IsActive) return;
             if (IsPaused) return;
 
-            m_timeLeft -= Time.deltaTime;
+            if (m_reversed) m_time += Time.deltaTime * m_speedMultiplier;
+            else m_time -= Time.deltaTime * m_speedMultiplier;
+
             OnTick?.Invoke();
 
-            if (m_timeLeft <= 0f)
+            if (m_time <= 0f && !m_reversed)
+                Succeed();
+            else if (m_time >= m_duration && m_reversed) 
                 Succeed();
         }
         internal void Dispose()
@@ -178,7 +212,9 @@ namespace com.absence.timersystem
         internal void ResetProperties()
         {
             m_state = TimerState.NotStarted;
-            m_timeLeft = 0f;
+            m_time = 0f;
+            m_speedMultiplier = 1f;
+            m_reversed = false;
 
             OnTick = null;
             OnComplete = null;

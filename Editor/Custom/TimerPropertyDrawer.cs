@@ -15,10 +15,9 @@ namespace com.absence.timersystem.editor
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            SerializedProperty isExpandedProp = property.FindPropertyRelative("m_isExpanded");
             Timer timer = property.boxedValue as Timer;
 
-            bool isExpanded = isExpandedProp.boolValue;
+            bool isExpanded = property.isExpanded;
             //bool isCollapsed = boxedValue.TimerProvider == null 
             //    || boxedValue.TimerProvider?.Invoke() == null;
 
@@ -42,12 +41,11 @@ namespace com.absence.timersystem.editor
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            SerializedProperty isExpandedProp = property.FindPropertyRelative("m_isExpanded");
             Timer timer = property.boxedValue as Timer;
 
             //ITimer timer = null;
 
-            bool isExpanded = isExpandedProp.boolValue;
+            bool isExpanded = property.isExpanded;
 
             //if (!providerNull) timer = boxedValue.TimerProvider?.Invoke();
             //timer = boxedValue.Timer;
@@ -63,7 +61,7 @@ namespace com.absence.timersystem.editor
             position.height = EditorGUIUtility.singleLineHeight;
 
             isExpanded = EditorGUI.Foldout(position, isExpanded, label, true);
-            isExpandedProp.boolValue = isExpanded;
+            property.isExpanded = isExpanded;
 
             if (!isExpanded) return;
 
