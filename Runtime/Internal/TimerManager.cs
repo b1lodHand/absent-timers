@@ -77,7 +77,8 @@ namespace com.absence.timersystem.internals
         }
         private void OnTimerGet(Timer t)
         {
-            
+            // is necessary ?
+            t.ResetProperties();
         }
         private void OnTimerRelease(Timer t)
         {
