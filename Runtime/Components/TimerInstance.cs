@@ -24,10 +24,6 @@ namespace com.absence.timersystem
 
         private void Start()
         {
-            m_timer = Timer.Create(m_duration, null, OnTimerComplete);
-            m_timer.OnComplete += OnTimerComplete;
-            m_timer.OnTick += OnTimerTick;
-
             if (m_startOnAwake) StartTimer();
         } 
 
@@ -35,6 +31,10 @@ namespace com.absence.timersystem
         {
             if (m_timer != null)
                 m_timer.Fail();
+
+            m_timer = Timer.Create(m_duration, null, OnTimerComplete);
+            m_timer.OnComplete += OnTimerComplete;
+            m_timer.OnTick += OnTimerTick;
 
             m_onStart?.Invoke();
             m_timer.Start();
