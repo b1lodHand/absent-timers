@@ -69,6 +69,7 @@ namespace com.absence.timersystem.internals
         private Timer OnTimerCreate()
         {
             Timer t = new Timer();
+            t.ResetProperties();
             return t;
         }
         private void OnTimerDestroy(Timer t)
@@ -77,12 +78,12 @@ namespace com.absence.timersystem.internals
         }
         private void OnTimerGet(Timer t)
         {
-            // is necessary ?
-            t.ResetProperties();
+            t.IsValid = true;
         }
         private void OnTimerRelease(Timer t)
         {
             t.ResetProperties();
+            t.IsValid = false;
         }
         #endregion
 

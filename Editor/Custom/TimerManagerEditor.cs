@@ -7,6 +7,8 @@ namespace com.absence.timersystem.editor
     [CustomEditor(typeof(TimerManager))]
     public class TimerManagerEditor : Editor
     {
+        const float k_timerFieldWidth = 20f;
+
         public override void OnInspectorGUI()
         {
             TimerManager manager = (TimerManager)target;
@@ -93,15 +95,34 @@ namespace com.absence.timersystem.editor
 
             void DrawActiveTimerList()
             {
-                SerializedProperty timerListProp = serializedObject.FindProperty("m_activeTimers");
-
                 GUI.enabled = false;
 
-                EditorGUILayout.PropertyField(timerListProp, new("Active Timers"), true);
+                EditorGUILayout.LabelField("Active Timers:");
+
+                manager.m_activeTimers.ForEach(timer =>
+                {
+                    EditorGUILayout.BeginHorizontal();
+
+                    float duration = timer.Duration;
+                    float current = timer.CurrentTime;
+
+                    EditorGUILayout.LabelField("0", GUILayout.Width(k_timerFieldWidth));
+
+                    GUILayout.HorizontalSlider(current, 0f, duration);
+
+                    EditorGUILayout.LabelField(duration.ToString(), GUILayout.Width(k_timerFieldWidth));
+
+                    EditorGUILayout.EndHorizontal();
+                });
 
                 GUI.enabled = true;
             }
 
+        }
+
+        public override bool RequiresConstantRepaint()
+        {
+            return true;
         }
     }
 }

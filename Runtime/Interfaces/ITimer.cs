@@ -17,11 +17,10 @@ namespace com.absence.timersystem
         /// The current time of the timer. Logic depends on the type of timer.
         /// </summary>
         float CurrentTime { get; }
-        float Speed { get; }
         /// <summary>
-        /// Returns true if this timer is started but not completed yet.
+        /// Current speed modifier of the timer.
         /// </summary>
-        bool IsActive { get; }
+        float Speed { get; }
         /// <summary>
         /// Returns true if this timer is paused.
         /// </summary>
@@ -35,13 +34,14 @@ namespace com.absence.timersystem
         /// </summary>
         bool HasCompleted { get; }
 
-        public event Action OnTick;
-        public event Action<TimerCompletionContext> OnComplete;
+        public event Action onTick;
+        public event Action<bool> onPauseStateChange;
+        public event Action<TimerCompletionContext> onComplete;
 
         /// <summary>
-        /// Use to start the timer if it's not started yet.
+        /// Use to manually tick the timer.
         /// </summary>
-        void Start(bool startPaused = false);
+        void Tick();
         /// <summary>
         /// Use to restart the timer.
         /// </summary>
@@ -49,7 +49,7 @@ namespace com.absence.timersystem
         /// <summary>
         /// Use to pause the timer.
         /// </summary>
-        void Pause();
+        ITimer Pause();
         /// <summary>
         /// Use to resume the timer.
         /// </summary>
@@ -66,24 +66,42 @@ namespace com.absence.timersystem
         /// Use to expand the timer by some amount.
         /// </summary>
         /// <param name="amount">Amount of expansion (s).</param>
-        void Expand(float amount);
+        ITimer Expand(float amount);
         /// <summary>
         /// Use to shrink the timer by some amoun.
         /// </summary>
         /// <param name="amount">Amount of shrink (s).</param>
-        void Shrink(float amount);
+        ITimer Shrink(float amount);
         /// <summary>
         /// Use to make the timer tick in the opposite direction.
         /// </summary>
-        void Reverse();
+        ITimer Reverse();
         /// <summary>
         /// Use to mirror the timer. Simply reverses the timer but keeps the time left to completion same.
         /// </summary>
-        void Flip();
+        ITimer Flip();
+
         /// <summary>
         /// Use to set the speed modifier of the timer to the given value. Default value for modifier is 1f.
         /// </summary>
         /// <param name="newSpeed">New value of the speed modifier. <b>CAN NOT BE BELOW OR EQUAL TO 0f</b>.</param>
-        void SetSpeed(float newSpeed);
+        ITimer SetSpeed(float newSpeed);
+        ITimer SetDuration(float newDuration);
+
+        /// <summary>
+        /// Use to append an action to the completion event.
+        /// </summary>
+        /// <param name="action">The action to append.</param>
+        public ITimer OnComplete(Action<TimerCompletionContext> action);
+        /// <summary>
+        /// Use to append an action to the tick event.
+        /// </summary>
+        /// <param name="action">The action to append.</param>
+        public ITimer OnTick(Action action);
+        /// <summary>
+        /// Use to append an action to the pause/resume event.
+        /// </summary>
+        /// <param name="action">The action to append. Boolean parameter is true if the event is a pause.</param>
+        public ITimer OnPauseResume(Action<bool> action);
     }
 }

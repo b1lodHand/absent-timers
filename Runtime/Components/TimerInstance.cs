@@ -17,10 +17,11 @@ namespace com.absence.timersystem
 
         [SerializeField] private UnityEvent m_onStart;
         [SerializeField] private UnityEvent m_onTick;
+        [SerializeField] private UnityEvent<bool> m_onPauseStateChange;
         [SerializeField] private UnityEvent m_onSuccess;
         [SerializeField] private UnityEvent m_onFail;
 
-        Timer m_timer;
+        ITimer m_timer;
 
         private void Start()
         {
@@ -32,12 +33,20 @@ namespace com.absence.timersystem
             if (m_timer != null)
                 m_timer.Fail();
 
-            m_timer = Timer.Create(m_duration, null, OnTimerComplete);
-            m_timer.OnComplete += OnTimerComplete;
-            m_timer.OnTick += OnTimerTick;
+            m_timer = Timer.Create(m_duration)
+                .OnTick(OnTimerTick)
+                .OnComplete(OnTimerComplete)
+                .OnPauseResume(OnPauseResume);
+
+            m_timer.onComplete += OnTimerComplete;
+            m_timer.onTick += OnTimerTick;
 
             m_onStart?.Invoke();
-            m_timer.Start();
+        }
+
+        private void OnPauseResume(bool paused)
+        {
+            m_onPauseStateChange?.Invoke(paused);
         }
 
         private void OnTimerTick()
