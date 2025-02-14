@@ -57,6 +57,7 @@ namespace com.absence.timersystem
         /// Use to get the amount of time left until this timer reaches to its destination.
         /// </summary>
         public float CurrentTime => m_time;
+        public float Percentage => m_time / m_duration;
         public float Speed => m_speedMultiplier;
         public bool HasCompleted => m_state == TimerState.Failed || m_state == TimerState.Succeeded;
         public bool HasStarted => m_state != TimerState.NotStarted;
@@ -77,13 +78,20 @@ namespace com.absence.timersystem
         /// </summary>
         public void Tick()
         {
+            Tick(Time.deltaTime * m_speedMultiplier);
+        }
+        /// <summary>
+        /// Use to manually tick the timer. Only to use with unmanaged timers.
+        /// </summary>
+        public void Tick(float amount)
+        {
             if (!IsValid) return;
 
             if (!IsActive) return;
             if (IsPaused) return;
 
-            if (m_reversed) m_time += Time.deltaTime * m_speedMultiplier;
-            else m_time -= Time.deltaTime * m_speedMultiplier;
+            if (m_reversed) m_time += amount;
+            else m_time -= amount;
 
             onTick?.Invoke();
 
@@ -230,6 +238,13 @@ namespace com.absence.timersystem
                 throw new Exception("Duration of a timer cannot be zero or lower!");
 
             m_duration = newDuration;
+            return this;
+        }
+        public ITimer SetPercentage(float newPercentage)
+        {
+            newPercentage = Mathf.Clamp01(newPercentage);
+
+            m_time = newPercentage / m_duration;
             return this;
         }
         public ITimer OnComplete(Action<TimerCompletionContext> action)

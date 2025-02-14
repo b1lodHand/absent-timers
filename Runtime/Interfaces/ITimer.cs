@@ -18,6 +18,10 @@ namespace com.absence.timersystem
         /// </summary>
         float CurrentTime { get; }
         /// <summary>
+        /// The current completion percentage of the timer.
+        /// </summary>
+        float Percentage { get; }
+        /// <summary>
         /// Current speed modifier of the timer.
         /// </summary>
         float Speed { get; }
@@ -42,6 +46,11 @@ namespace com.absence.timersystem
         /// Use to manually tick the timer.
         /// </summary>
         void Tick();
+        /// <summary>
+        /// Use to manually tick the timer with a custom amount.
+        /// </summary>
+        /// <param name="amount">Amount of ticks in ms.</param>
+        void Tick(float amount);
         /// <summary>
         /// Use to restart the timer.
         /// </summary>
@@ -86,7 +95,16 @@ namespace com.absence.timersystem
         /// </summary>
         /// <param name="newSpeed">New value of the speed modifier. <b>CAN NOT BE BELOW OR EQUAL TO 0f</b>.</param>
         ITimer SetSpeed(float newSpeed);
+        /// <summary>
+        /// Use to change the duration of the timer.
+        /// </summary>
+        /// <param name="newDuration">New duration.</param>
         ITimer SetDuration(float newDuration);
+        /// <summary>
+        /// Use to make the timer jump to a percentage.
+        /// </summary>
+        /// <param name="newPercentage">New percentage between 0-1.</param>
+        ITimer SetPercentage(float newPercentage);
 
         /// <summary>
         /// Use to append an action to the completion event.
